@@ -2,6 +2,9 @@
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 const fs = require('fs')
+const json2csv = require('json2csv')
+
+
 
 //Entry Point of the Scraper
 const url = 'http://shirts4mike.com/'
@@ -37,7 +40,9 @@ var dir = './data';
 
 const writeStream = fs.createWriteStream(`./data/${today}.csv`)
 
-writeStream.write(`Title Price ImageUrl Url Date \n`);
+var allShirts =  []
+
+//writeStream.write([`Title Price ImageUrl Url Date \n`]);
 
 
 //Makes a request to the urel using the requst-promise package
@@ -63,18 +68,18 @@ rp(url)
     //Finds the li tags in the products class. 
 
     const products = $('.products').find('li')
+    console.log(products.length)
     //loops through the products class
     products.each((i, el) =>{
+      
       //Finds the link for each of the shirts. 
       const item  = $(el).find('a').attr('href');
-      //image Url
-      const link = $(el).find('img').attr('src')
-      const alt = $(el).find('img').attr('alt')
-      
+           
       //Appends the shirt id to the full url. 
       var list = url + item
       
-      //Makes a request for shirt id url         
+      //Makes a request for shirt id url    
+
       rp(list)
       .then(function(body){
 
@@ -84,18 +89,47 @@ rp(url)
         const item  = $(el).find('a').attr('href');
         const imageUrl = $(body).find('img').attr('src')
         const title = $(body).find(".shirt-details > h1").text().replace(/\s+/g, "").slice(3);
-        const price = $(body).find('.price').text()   
+        const price = $(body).find('.price').text()        
+        const shirts = {}
 
-        writeStream.write(`${title} ${price} ${imageUrl} ${list} ${day} \n`)
+        shirts.title = title
+        shirts.price = price
+        shirts.imageUrl = imageUrl
+        shirts.item = item
+        shirts.date = day
+        allShirts.push(shirts)
+        console.log(allShirts.length)
 
+
+        if(allShirts.length === products.length){
         
-        
+          const json2csv = require('json2csv').parse;
+const fields = ['field1', 'field2', 'field3'];
+const opts = { allShirts };
+ 
+try {
+  const csv = json2csv(allShirts, fields);
+  writeStream.write(csv)
+  console.log(csv);
+} catch (err) {
+  console.error(err);
+}
+
+}
+
+     
       })
+        
+
     })
-    console.log('Scraping Complete!!!!')
+
+ 
+
   })
 })
- 
+
+  
+    //console.log('Scraping Complete!!!!') 
   .catch(function(err){
 
     console.log('So Sorry, and Error occured. Please check your internet connection')
