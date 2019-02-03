@@ -4,11 +4,8 @@ const cheerio = require('cheerio');
 const fs = require('fs')
 const json2csv = require('json2csv')
 
-
-
 //Entry Point of the Scraper
 const url = 'http://shirts4mike.com/'
-
 
 //Date info for File, and File Name
 const day = new Date().toLocaleString()
@@ -34,17 +31,7 @@ var dir = './data';
     fs.mkdirSync(dir);
   }
 
-
-// Creation of the CSV file in the Data Directory
-//Writes the Headers for the CSV file
-
-const writeStream = fs.createWriteStream(`./data/${today}.csv`)
-
 var allShirts =  []
-
-
- 
-
 
 //Makes a request to the urel using the requst-promise package
   
@@ -99,49 +86,34 @@ rp(url)
         shirts.item = list
         shirts.date = day
         allShirts.push(shirts)
-        console.log(allShirts.length)
-
-
+        
         if(allShirts.length === products.length){
+
+          //Using JSON2CSV to put the data in the correct format
         
           const json2csv = require('json2csv').parse;
           const fields = ['Title', 'Price',  'ImageUrl',  'Url',  'Date'];
           const opts = { fields }
-          //console.log(opts)
-
-
- 
-try {
-  const csv = json2csv(allShirts, fields);
-  console.log(csv)
-
-fs.writeFile(`./data/${today}.csv`, csv , (err) => {
-  if (err) throw err;
-  console.log('The file has been saved!');
-});
-  console.log(csv);
-} catch (err) {
-  console.error(err);
-}
-
-}
-
-     
+                      
+              try {
+                const csv = json2csv(allShirts, fields);
+                //writes the file
+                fs.writeFile(`./data/${today}.csv`, csv , (err) => {
+              if (err) throw err;
+              console.log('The file has been saved!');
+            });
+              console.log(csv);
+            } catch (err) {
+              console.error(err);
+            }
+          }
+        })
       })
-        
-
     })
-
- 
-
   })
-})
 
-  
-    //console.log('Scraping Complete!!!!') 
   .catch(function(err){
 
     console.log('So Sorry, and Error occured. Please check your internet connection')
     
-  })
-
+})
