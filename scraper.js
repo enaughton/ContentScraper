@@ -42,7 +42,8 @@ const writeStream = fs.createWriteStream(`./data/${today}.csv`)
 
 var allShirts =  []
 
-//writeStream.write([`Title Price ImageUrl Url Date \n`]);
+
+ 
 
 
 //Makes a request to the urel using the requst-promise package
@@ -88,14 +89,14 @@ rp(url)
 
         const item  = $(el).find('a').attr('href');
         const imageUrl = $(body).find('img').attr('src')
-        const title = $(body).find(".shirt-details > h1").text().replace(/\s+/g, "").slice(3);
+        const title = $(body).find(".shirt-details > h1").text().slice(3);
         const price = $(body).find('.price').text()        
         const shirts = {}
 
         shirts.title = title
         shirts.price = price
         shirts.imageUrl = imageUrl
-        shirts.item = item
+        shirts.item = list
         shirts.date = day
         allShirts.push(shirts)
         console.log(allShirts.length)
@@ -104,12 +105,20 @@ rp(url)
         if(allShirts.length === products.length){
         
           const json2csv = require('json2csv').parse;
-const fields = ['field1', 'field2', 'field3'];
-const opts = { allShirts };
+          const fields = ['Title', 'Price',  'ImageUrl',  'Url',  'Date'];
+          const opts = { fields }
+          //console.log(opts)
+
+
  
 try {
   const csv = json2csv(allShirts, fields);
-  writeStream.write(csv)
+  console.log(csv)
+
+fs.writeFile(`./data/${today}.csv`, csv , (err) => {
+  if (err) throw err;
+  console.log('The file has been saved!');
+});
   console.log(csv);
 } catch (err) {
   console.error(err);
