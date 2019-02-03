@@ -56,7 +56,7 @@ rp(url)
     //Finds the li tags in the products class. 
 
     const products = $('.products').find('li')
-    console.log(products.length)
+   
     //loops through the products class
     products.each((i, el) =>{
       
@@ -102,7 +102,6 @@ rp(url)
               if (err) throw err;
               console.log('The file has been saved!');
             });
-              console.log(csv);
             } catch (err) {
               console.error(err);
             }
